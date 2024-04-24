@@ -3,6 +3,7 @@ import Konva from 'konva';
 import { Stage, Layer, Line } from 'react-konva';
 import io, { Socket } from 'socket.io-client';
 import axios from 'axios';
+import { useUser } from './userContext';
 
 interface DrawBoardProps {
   brushSize: number;
@@ -27,8 +28,9 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   const undoneLines = useRef<Konva.Line[]>([]);
   const layerRef = useRef<Konva.Layer | null>(null);
   const stageRef = useRef<Konva.Stage | null>(null);
-  const [roomid,setRoomid]=useState<string>("null");
-
+  const { roomId} = useUser();
+  const roomid=roomId;
+  
   const clearDrawingData = async (roomId: string) => {
       const requestData = { roomId };
       try {
@@ -55,18 +57,18 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
     if (!socket) return;
 
     socket.on('initialDraw', (data: any[]) => {
-      console.log(data);
       data.filter(drawData => drawData.roomId === roomid)
           .forEach(drawData => drawLine(drawData));
   });
   
 
-    socket.on('draw', (data: any) => {
-      const { roomId,action, ...drawData } = data;
-      if (action === 'draw') {
-        drawLine(drawData);
-      }
-    });
+  socket.on('draw', (data: any) => {
+    const { roomId, action, ...drawData } = data;
+    if (roomId === roomid && action === 'draw') {
+      drawLine(drawData);
+    }
+  });
+  
 
     socket.on('clearData', () => {
       clearDrawing();

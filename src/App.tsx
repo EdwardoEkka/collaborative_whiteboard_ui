@@ -1,22 +1,22 @@
 import React,{useState} from 'react';
 import MainLog from './components/main_log';
-import DrawBoard from './components/board';
+import Main_Board from './components/Main_Board';
+import { UserProvider } from "./components/userContext";
+import { BrowserRouter as Router,Route, Routes } from 'react-router-dom';
+import Room from './components/page';
 
 function App() {
-  const [brushSize, setBrushSize] = useState(5);
-  const [eraserMode, setEraserMode] = useState(false);
-  const [brushColor, setBrushColor] = useState('#000000');
   return (
     <div className="App">
-      {/* <MainLog/> */}
-      <DrawBoard
-        brushSize={brushSize}
-        setBrushSize={setBrushSize}
-        brushColor={brushColor}
-        setBrushColor={setBrushColor}
-        eraserMode={eraserMode}
-        setEraserMode={setEraserMode}
-      />
+      <Router>
+                <UserProvider>
+                    <Routes>
+                    <Route path="/" element={<Room/>} />
+                    <Route path="/board" element={<Main_Board/>} />
+                    <Route path="/log" element={<MainLog/>} />
+                    </Routes>
+                </UserProvider>
+            </Router>
     </div>
   );
 }
