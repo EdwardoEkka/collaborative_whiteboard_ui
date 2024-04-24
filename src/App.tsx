@@ -1,24 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React,{useState} from 'react';
+import MainLog from './components/main_log';
+import DrawBoard from './components/board';
 
 function App() {
+  const [brushSize, setBrushSize] = useState(5);
+  const [eraserMode, setEraserMode] = useState(false);
+  const [brushColor, setBrushColor] = useState('#000000');
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {/* <MainLog/> */}
+      <DrawBoard
+        brushSize={brushSize}
+        setBrushSize={setBrushSize}
+        brushColor={brushColor}
+        setBrushColor={setBrushColor}
+        eraserMode={eraserMode}
+        setEraserMode={setEraserMode}
+      />
     </div>
   );
 }
