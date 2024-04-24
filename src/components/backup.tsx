@@ -27,19 +27,15 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   const undoneLines = useRef<Konva.Line[]>([]);
   const layerRef = useRef<Konva.Layer | null>(null);
   const stageRef = useRef<Konva.Stage | null>(null);
-  const [roomid,setRoomid]=useState<string>("null");
 
-  const clearDrawingData = async (roomId: string) => {
-      const requestData = { roomId };
-      try {
-          await axios.post('http://localhost:5000/clearData', requestData);
-          console.log('Drawing data cleared successfully');
-      } catch (error) {
-          console.error('Error clearing drawing data:', error);
-      }
+  const clearDrawingData = async () => {
+    try {
+      await axios.post('http://localhost:5000/clearData');
+      console.log('Drawing data cleared successfully');
+    } catch (error) {
+      console.error('Error clearing drawing data:', error);
+    }
   };
-  
-
 
   useEffect(() => {
     const socket = io('http://localhost:5000');
@@ -55,14 +51,11 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
     if (!socket) return;
 
     socket.on('initialDraw', (data: any[]) => {
-      console.log(data);
-      data.filter(drawData => drawData.roomId === roomid)
-          .forEach(drawData => drawLine(drawData));
-  });
-  
+      data.forEach(drawData => drawLine(drawData));
+    });
 
     socket.on('draw', (data: any) => {
-      const { roomId,action, ...drawData } = data;
+      const { action, ...drawData } = data;
       if (action === 'draw') {
         drawLine(drawData);
       }
@@ -77,7 +70,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
       socket.off('draw');
       socket.off('clearData');
     };
-  }, [socket,roomid]);
+  }, [socket]);
 
   const drawLine = (data: any) => {
     const { points, brushSize, brushColor, eraserMode } = data;
@@ -94,7 +87,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
 
   const emitDraw = (action: string, data: any) => {
     if (socket) {
-      socket.emit('draw', {roomId:roomid,action, ...data });
+      socket.emit('draw', { action, ...data });
     }
   };
 
@@ -182,11 +175,11 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
     // Update the stage
     layerRef.current?.batchDraw();
   };
+
   return (
     <div>
-      
-      <div>
       <div style={{ marginBottom: '10px' }}>
+
         <label htmlFor="brushSize">Brush Size: </label>
         <input
           type="range"
@@ -208,7 +201,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
         </button>
         <button onClick={undo}>Undo</button>
         <button onClick={redo}>Redo</button>
-        <button onClick={() => clearDrawingData(roomid)}>Clear</button>
+        <button onClick={clearDrawingData}>Clear</button>
       </div>
       <div style={{ cursor: eraserMode ? 'cell' : 'crosshair' }}>
         <Stage
@@ -226,8 +219,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
           <Layer ref={layerRef} />
         </Stage>
       </div>
-      </div>
-  </div>
+    </div>
   );
 };
 
