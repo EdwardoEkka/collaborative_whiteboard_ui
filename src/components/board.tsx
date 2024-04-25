@@ -179,9 +179,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   };
 
   const clearDrawing = () => {
-    // Remove all lines from the Konva layer
     layerRef.current?.removeChildren();
-    // Update the stage
     layerRef.current?.batchDraw();
   };
   return (

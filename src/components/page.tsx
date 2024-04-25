@@ -3,7 +3,7 @@ import { useUser } from './userContext'; // Adjust the path if necessary
 import {useNavigate } from 'react-router-dom';
 
 const Room: React.FC = () => {
-  const { roomId, updateUser } = useUser();
+  const { roomId,username, updateUser } = useUser();
   const [newRoomId, setNewRoomId] = useState<string>(''); // State to hold the new room ID input
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ const Room: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateUser(newRoomId);
+    updateUser(newRoomId,username);
     navigate('/board');
     setNewRoomId('');
   };
@@ -21,6 +21,7 @@ const Room: React.FC = () => {
   return (
     <div>
       <p>Current Room ID: {roomId}</p>
+      <p>{username}</p>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
