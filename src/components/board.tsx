@@ -3,7 +3,6 @@ import Konva from 'konva';
 import { Stage, Layer, Line } from 'react-konva';
 import io, { Socket } from 'socket.io-client';
 import axios from 'axios';
-import { useUser } from './userContext';
 
 interface DrawBoardProps {
   brushSize: number;
@@ -28,20 +27,29 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   const undoneLines = useRef<Konva.Line[]>([]);
   const layerRef = useRef<Konva.Layer | null>(null);
   const stageRef = useRef<Konva.Stage | null>(null);
-  const { roomId} = useUser();
-  const roomid=roomId;
-  
-  const clearDrawingData = async (roomId: string) => {
-      const requestData = { roomId };
-      try {
-          await axios.post('http://localhost:5000/clearData', requestData);
-          console.log('Drawing data cleared successfully');
-      } catch (error) {
-          console.error('Error clearing drawing data:', error);
-      }
-  };
-  
 
+
+
+
+  const clearDrawingData = async () => {
+    try {
+      await axios.post('http://localhost:5000/clearData');
+      console.log('Drawing data cleared successfully');
+    } catch (error) {
+      console.error('Error clearing drawing data:', error);
+    }
+  };
+
+ 
+  
+  
+  useEffect(() => {
+    // Scroll to 50% of the page height and width
+    window.scrollTo(document.body.scrollWidth * 0.25, document.body.scrollHeight * 0.35);
+  }, []);
+
+  
+  
 
   useEffect(() => {
     const socket = io('http://localhost:5000');
@@ -57,18 +65,15 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
     if (!socket) return;
 
     socket.on('initialDraw', (data: any[]) => {
-      data.filter(drawData => drawData.roomId === roomid)
-          .forEach(drawData => drawLine(drawData));
-  });
-  
+      data.forEach(drawData => drawLine(drawData));
+    });
 
-  socket.on('draw', (data: any) => {
-    const { roomId, action, ...drawData } = data;
-    if (roomId === roomid && action === 'draw') {
-      drawLine(drawData);
-    }
-  });
-  
+    socket.on('draw', (data: any) => {
+      const { action, ...drawData } = data;
+      if (action === 'draw') {
+        drawLine(drawData);
+      }
+    });
 
     socket.on('clearData', () => {
       clearDrawing();
@@ -79,7 +84,9 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
       socket.off('draw');
       socket.off('clearData');
     };
-  }, [socket,roomid]);
+  }, [socket]);
+
+  
 
   const drawLine = (data: any) => {
     const { points, brushSize, brushColor, eraserMode } = data;
@@ -96,7 +103,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
 
   const emitDraw = (action: string, data: any) => {
     if (socket) {
-      socket.emit('draw', {roomId:roomid,action, ...data });
+      socket.emit('draw', { action, ...data });
     }
   };
 
@@ -179,14 +186,20 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   };
 
   const clearDrawing = () => {
+    // Remove all lines from the Konva layer
     layerRef.current?.removeChildren();
+    // Update the stage
     layerRef.current?.batchDraw();
   };
+
+  
+
+
+
   return (
-    <div>
-      
-      <div>
-      <div style={{ marginBottom: '10px' }}>
+    <div >
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 999}}>
+
         <label htmlFor="brushSize">Brush Size: </label>
         <input
           type="range"
@@ -208,13 +221,14 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
         </button>
         <button onClick={undo}>Undo</button>
         <button onClick={redo}>Redo</button>
-        <button onClick={() => clearDrawingData(roomid)}>Clear</button>
+        <button onClick={clearDrawingData}>Clear</button>
       </div>
-      <div style={{ cursor: eraserMode ? 'cell' : 'crosshair' }}>
+      <div style={{ cursor: eraserMode ? 'cell' : 'crosshair',display:"flex",alignItems:"center",justifyContent:"center"}}>
         <Stage
           ref={stageRef}
-          width={window.innerWidth}
-          height={window.innerHeight - 50}
+          width={5000}
+          height={5000}
+          style={{zIndex:"100",backgroundColor:"#f2f2f2" }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -226,8 +240,7 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
           <Layer ref={layerRef} />
         </Stage>
       </div>
-      </div>
-  </div>
+    </div>
   );
 };
 

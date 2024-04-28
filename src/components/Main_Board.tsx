@@ -6,7 +6,7 @@ function Main_Board() {
   const [eraserMode, setEraserMode] = useState(false);
   const [brushColor, setBrushColor] = useState('#000000');
   return (
-    <div >
+    <div>
 
       <DrawBoard
         brushSize={brushSize}
@@ -16,6 +16,7 @@ function Main_Board() {
         eraserMode={eraserMode}
         setEraserMode={setEraserMode}
       />
+
     </div>
   );
 }

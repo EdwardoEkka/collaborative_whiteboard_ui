@@ -5,6 +5,9 @@ import { UserProvider } from "./components/userContext";
 import { BrowserRouter as Router,Route, Routes } from 'react-router-dom';
 import Room from './components/page';
 import Authen from './components/cloak_test';
+import CanvasComponent from './components/try';
+
+
 
 
 function App() {
@@ -20,6 +23,7 @@ function App() {
                     </Routes>
                 </UserProvider>
             </Router>
+            {/* <CanvasComponent/> */}
     </div>
   );
 }
