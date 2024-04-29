@@ -1,11 +1,10 @@
 import React,{useState} from 'react';
-import MainLog from './components/main_log';
 import Main_Board from './components/Main_Board';
 import { UserProvider } from "./components/userContext";
 import { BrowserRouter as Router,Route, Routes } from 'react-router-dom';
 import Room from './components/page';
 import Authen from './components/cloak_test';
-import CanvasComponent from './components/try';
+
 
 
 
@@ -18,12 +17,10 @@ function App() {
                     <Routes>
                     <Route path="/" element={<Authen/>}/>
                     <Route path="/board" element={<Main_Board/>} />
-                    <Route path="/log" element={<MainLog/>} />
                     <Route path="/auth" element={<Room/>}/>
                     </Routes>
                 </UserProvider>
             </Router>
-            {/* <CanvasComponent/> */}
     </div>
   );
 }

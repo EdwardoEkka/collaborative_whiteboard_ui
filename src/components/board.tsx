@@ -4,6 +4,7 @@ import { Stage, Layer, Line } from 'react-konva';
 import io, { Socket } from 'socket.io-client';
 import axios from 'axios';
 
+
 interface DrawBoardProps {
   brushSize: number;
   setBrushSize: React.Dispatch<React.SetStateAction<number>>;
@@ -186,49 +187,67 @@ const DrawBoard: React.FC<DrawBoardProps> = ({
   };
 
   const clearDrawing = () => {
-    // Remove all lines from the Konva layer
     layerRef.current?.removeChildren();
-    // Update the stage
     layerRef.current?.batchDraw();
   };
 
-  
+  const stageIRef = useRef(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
+  const handleZoomIn = () => {
+    setZoomLevel(prevZoom => prevZoom * 1.1); 
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prevZoom => prevZoom * 0.9);
+  };
 
 
   return (
-    <div >
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 999}}>
-
-        <label htmlFor="brushSize">Brush Size: </label>
-        <input
-          type="range"
-          id="brushSize"
-          min="1"
-          max="20"
-          value={brushSize}
-          onChange={handleBrushSizeChange}
-        />
-        <label htmlFor="brushColor">Brush Color: </label>
-        <input
-          type="color"
-          id="brushColor"
-          value={brushColor}
-          onChange={handleBrushColorChange}
-        />
-        <button onClick={toggleEraserMode}>
-          {eraserMode ? 'Disable Eraser' : 'Enable Eraser'}
-        </button>
-        <button onClick={undo}>Undo</button>
-        <button onClick={redo}>Redo</button>
-        <button onClick={clearDrawingData}>Clear</button>
-      </div>
-      <div style={{ cursor: eraserMode ? 'cell' : 'crosshair',display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div style={{backgroundColor:"#f2f2f2"}}>
+      <div className="tools fixed-bottom bg-light p-3">
+      <label htmlFor="brushSize">Brush Size: </label>
+      <input
+        type="range"
+        id="brushSize"
+        min="1"
+        max="20"
+        value={brushSize}
+        onChange={handleBrushSizeChange}
+      />
+      <label htmlFor="brushColor">Brush Color: </label>
+      <input
+        type="color"
+        id="brushColor"
+        value={brushColor}
+        onChange={handleBrushColorChange}
+      />
+      <button onClick={toggleEraserMode} className="btn btn-primary">
+        {eraserMode ? 'Disable Eraser' : 'Enable Eraser'}
+      </button>
+      <button onClick={undo} className="btn btn-primary">Undo</button>
+      <button onClick={redo} className="btn btn-primary">Redo</button>
+      <button onClick={clearDrawingData} className="btn btn-danger">Clear</button>
+      <button onClick={handleZoomIn} className="btn btn-primary">Zoom In</button>
+      <button onClick={handleZoomOut} className="btn btn-primary">Zoom Out</button>
+    </div>
+      <div
+      
+      ref={stageIRef}
+        style={{
+          cursor: 'crosshair',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transform: `scale(${zoomLevel})`, 
+          touchAction: 'none',
+        }}
+      >
         <Stage
           ref={stageRef}
-          width={5000}
-          height={5000}
-          style={{zIndex:"100",backgroundColor:"#f2f2f2" }}
+          width={6000}
+          height={6000}
+          style={{zIndex:"100",backgroundColor:"#f2f2f2",position:"relative"}}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
